@@ -5,15 +5,12 @@ TMDB_API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZWNiMzM0ZGExZTRhOGVlMWU1YjczMDQ
 
 
 def get_poster(rt_url: str, year: str = None) -> str:
-    print(f"\n🎬 Buscando poster para: {rt_url}")
 
     imdb_id = get_imdb_id_from_rt(rt_url, year=year)
 
     if not imdb_id:
-        print("❌ No se encontró IMDB ID.")
         return None
 
-    print(f"✅ IMDB ID obtenido: {imdb_id}")
 
     try:
         res = requests.get(
@@ -39,25 +36,24 @@ def get_poster(rt_url: str, year: str = None) -> str:
             )
 
             if not result:
-                print("⚠️ No se encontraron resultados.")
+                print(" No se encontraron resultados.")
                 return None
 
             poster_path = result[0].get("poster_path")
 
             if not poster_path:
-                print("⚠️ No hay poster disponible.")
+                print(" No hay poster disponible.")
                 return None
 
             poster_url = f"https://image.tmdb.org/t/p/original{poster_path}"
 
-            print(f"🖼️ Poster encontrado: {poster_url}")
 
             return poster_url
 
         else:
-            print(f"⚠️ Error TMDB: {res.text}")
+            print(f" Error TMDB: {res.text}")
 
     except Exception as e:
-        print(f"💥 Excepción obteniendo poster: {e}")
+        print(f" Excepción obteniendo poster: {e}")
 
     return None

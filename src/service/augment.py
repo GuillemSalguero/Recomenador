@@ -8,11 +8,9 @@ def augment_results(chroma_res: Dict, max_results=5, max_runtime=None, auth=None
 
     print(Dict)
     
-    # 1. Recuperación de datos de usuario (Watchlist y Directores)
     if auth:
         headers = {"Authorization": f"Bearer {auth}"}
         try:
-            print("🔐 Recuperando datos de usuario para personalización...")
             with httpx.Client(timeout=1.2) as client:
                 # Obtener Watchlist
                 resp_wl = client.get("http://localhost:8083/api/movies/watchlist", headers=headers)
@@ -29,12 +27,10 @@ def augment_results(chroma_res: Dict, max_results=5, max_runtime=None, auth=None
                     data_dir = resp_dir.json()
                     user_fav_directors = data_dir.get("directors") if isinstance(data_dir, dict) else []
 
-            print(f"✅ Datos de usuario recuperados: {len(user_watchlist)} en Watchlist, {len(user_fav_directors)} directores favoritos.")
         except Exception as e:
             print("error ", e)
-            pass # Si falla, continuamos con listas vacías
+            pass
 
-    # ... extracción de metadatos de Chroma ...
     docs, metas, dists = chroma_res["documents"][0], chroma_res["metadatas"][0], chroma_res["distances"][0]
     
     items = []
@@ -59,31 +55,25 @@ def augment_results(chroma_res: Dict, max_results=5, max_runtime=None, auth=None
         tomatometer = m.get("tomatometer") or 0
         score = (0.7 * sim_avg) + (0.3 * (tomatometer / 100.0))
         
-        # Penalización por Runtime
         runtime = m.get("runtime")
         if max_runtime and runtime and runtime > max_runtime:
             score -= 0.1
 
-        # --- Bonus 1: Watchlist ---
         is_in_watchlist = link in user_watchlist
         if is_in_watchlist:
-            print(f"⭐ Aplicando BONUS Watchlist a: {link}")
             score += WATCHLIST_BONUS
 
-        # --- Bonus 2: Directores Favoritos ---
         # Asumiendo que m.get("directors") es una lista o string
         movie_directors = m.get("directors") or []
         if isinstance(movie_directors, str):
             movie_directors = [d.strip() for d in movie_directors.split(",")]
         
-        # Si hay coincidencia entre directores de la película y favoritos del usuario
         has_fav_director = any(d in user_fav_directors for d in movie_directors)
         if has_fav_director:
-            print(f"Aplicando BONUS Director a: {link} (Director favorito detectado)")
             score += DIRECTOR_BONUS
 
 
-        # --- Carga de Assets ---
+        # --- Carga de Assets -
         streaming = []#get_plataformas(link, "es")
         poster = "" #get_poster(link)
         try :

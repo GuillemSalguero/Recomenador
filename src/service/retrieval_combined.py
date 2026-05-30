@@ -16,7 +16,6 @@ llm = ChatGroq(model_name="llama-3.1-8b-instant", temperature=0, api_key=setting
 '''
 Aquest implementa el self_query 
 '''
-# --- Nuestro extractor blindado con Regex ---
 def extract_filters(query: str) -> dict:
     prompt = f"""
     Extract filters from this query: "{query}"
@@ -37,7 +36,6 @@ def extract_filters(query: str) -> dict:
         if match:
             return json.loads(match.group(0))
         
-        # Default fallback if no JSON is found
         return {"search_text": query, "year_gte": None, "year_lte": None, "genre": None}
     except Exception as e:
         print(f"Filter error: {e}")
@@ -81,7 +79,7 @@ class CustomFilterRetriever(BaseRetriever):
             else:
                 return self.vectorstore.similarity_search(search_text, k=self.k)
         except Exception as e:
-            print(f"⚠️ Error en Chroma: {e}")
+            print(f" Error en Chroma: {e}")
             return self.vectorstore.similarity_search(query, k=self.k)
 
     async def _aget_relevant_documents(
@@ -112,14 +110,12 @@ def retrieve_combined(query: str, top_k: int) -> dict:
     distances = []
 
     for doc in results:
-        # Elimina duplicats basant-se en el contingut del text
         if doc.page_content not in seen:
             seen.add(doc.page_content)
             documents.append(doc.page_content)
             metadatas.append(doc.metadata)
             distances.append(0.0)# Valor per defecte ja que MultiQuery no sempre retorna distàncies
         
-        # Limita els resultats al valor top_k definit
         if len(documents) >= top_k:
             break
 

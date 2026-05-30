@@ -37,7 +37,6 @@ def retrieve_hybrid(query: str, top_k: int) -> dict:
                 "distances": [[]]
             }
 
-        # 🧹 2. Normalizar documentos
         clean_docs = [
             Document(
                 page_content=doc.page_content,

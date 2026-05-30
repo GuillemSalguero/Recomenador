@@ -5,17 +5,14 @@ from langchain_groq import ChatGroq
 from src.clients.chroma_client import get_vectorstore
 from src.config import settings
 
-# 1. Config logging to see the generated English queries in the console
 logging.basicConfig()
 logging.getLogger("langchain_classic.retrievers.multi_query").setLevel(logging.INFO)
 
 vectorstore = get_vectorstore()
 
-# LLM definition
 llm = ChatGroq(model_name="llama-3.1-8b-instant", temperature=0, api_key=settings.GROQ_API_KEY)
 
-# 2. Custom Prompt in English to force at least 4 variations
-# Using English instructions helps the LLM understand the semantic nuances better
+
 QUERY_PROMPT = PromptTemplate(
     input_variables=["question"],
     template="""You are an AI language model assistant. Your task is to generate five
@@ -29,7 +26,6 @@ QUERY_PROMPT = PromptTemplate(
     Output (at least 4 lines):""",
 )
 
-# 3. Setup the retriever with the English prompt
 retriever = MultiQueryRetriever.from_llm(
     retriever=vectorstore.as_retriever(search_kwargs={"k": 10}),
     llm=llm,

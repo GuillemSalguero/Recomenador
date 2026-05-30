@@ -128,8 +128,8 @@ src/
 
 | Service | Repository |
 |---------|-----------|
-| Frontend (React) | [add link] |
-| User backend (Spring Boot) | [add link] |
+| Frontend (React) | https://github.com/GuillemSalguero/cinementeWs |
+| User backend (Spring Boot) | https://github.com/GuillemSalguero/cinemente-recommender |
 
 ---
 
